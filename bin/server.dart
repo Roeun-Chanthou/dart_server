@@ -12,9 +12,9 @@ final _router = Router()
   // ..post('/image', UserController.uploadImage)
   ..post('/products', ProductController.create)
   ..put('/products/<id>', ProductController.update)
+  ..delete('/products/<id>', ProductController.delete)
   ..get('/products/images/<fileName>', ProductController.productImage)
   ..get('/products', ProductController.selectAllProduct)
-
 
 ////////////////////////////////////////////////////////////////
   ..get('/user', UserController.select)

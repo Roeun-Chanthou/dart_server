@@ -37,7 +37,6 @@ class ProductController {
       );
     }
 
-    //3. Read data from HttpParams
     var imageName = '';
     if (httpParams.getFile('image') case HttpFile image) {
       imageName = image.generateFileName;
@@ -134,6 +133,24 @@ class ProductController {
   static Future<Response> selectAllProduct(Request request) async {
     return Response.ok(
       jsonEncode(ProductDS().products),
+      headers: {'content-type': 'application/json'},
+    );
+  }
+
+  static Future<Response> delete(Request request, String id) async {
+    var productId = int.tryParse(id);
+    if (productId != null &&
+        !ProductDS().products.any((product) => product['id'] == productId)) {
+      return Response.badRequest(body: 'Invalid product ID');
+    }
+    ProductDS().products.firstWhere(
+          (product) => product['id'] == productId,
+          orElse: () => {},
+        );
+    ProductDS().products.removeWhere((product) => product['id'] == productId);
+
+    return Response.ok(
+      jsonEncode({'message': 'Product $id deleted successfully'}),
       headers: {'content-type': 'application/json'},
     );
   }
