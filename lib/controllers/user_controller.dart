@@ -1,29 +1,53 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dart_server_app/connection/connection.dart';
 import 'package:dart_server_app/data/user.dart';
+import 'package:dart_server_app/resources/user_resource.dart';
+import 'package:mime/mime.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 
 class UserController {
   UserController._();
 
-  static Response select(Request request) {
+  static Future<Response> select(Request request) async {
     var params = request.url.queryParameters;
     print("Params: $params");
 
     var page = int.parse(params['page'] ?? '0');
-    var perPage = int.parse(params['limit'] ?? '10');
-    var result = [];
+    var perPage = int.parse(params['per_page'] ?? '10');
     var offset = page * perPage;
 
-    for (var i = offset; i < offset + perPage; i++) {
-      if (i >= userDS.length) break;
-      result.add(userDS[i]);
-    }
+    var result = await Connection.db.getAll(
+      fields: 'id, first_name, last_name, image, username, dob',
+      table: 'users',
+      limit: '$offset, $perPage',
+    );
+
+    var host = request.requestedUri.origin;
+    var users = result.map((user) {
+      user['image'] = '$host/users/images/${user['image']}';
+      return user;
+    }).toList();
+
     return Response.ok(
-      jsonEncode(result),
+      jsonEncode(UserResource.fromCollection(users)),
       headers: {'content-type': 'application/json'},
+    );
+  }
+
+  static Future<Response> selectUserImage(Request request, String fileName) async {
+    var file = File("public/images/users/$fileName");
+    if (!file.existsSync()) {
+      return Response.notFound('File not found');
+    }
+
+    return Response.ok(
+      file.readAsBytesSync(),
+      headers: {
+        'content-type': lookupMimeType(fileName) ?? 'application/octet-stream'
+      },
     );
   }
 

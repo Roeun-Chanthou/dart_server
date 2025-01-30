@@ -46,6 +46,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  buffer:
+    dependency: transitive
+    description:
+      name: buffer
+      sha256: "389da2ec2c16283c8787e0adaede82b1842102f8c8aae2f49003a766c5c6b3d1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
   clock:
     dependency: transitive
     description:
@@ -222,6 +230,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
+  mysql_client_plus:
+    dependency: transitive
+    description:
+      name: mysql_client_plus
+      sha256: c36ec420598c1c263ec97a4ac5b26ccec19f44ab85eb1de9775dbbae843e226d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.30"
+  mysql_utils:
+    dependency: "direct main"
+    description:
+      name: mysql_utils
+      sha256: e8aeeeff2a88eb6939769977e2d1c8141374ff2a6965a53b6cce5fccd9eebd4a
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.5"
   node_preamble:
     dependency: transitive
     description:
@@ -406,6 +430,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.8"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
