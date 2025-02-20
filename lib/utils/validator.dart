@@ -1,7 +1,13 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 import 'http_params.dart';
+
+/*
+Require package:
+- intl:
+*/
 
 class JsonValidator {
   // Function to validate JSON against a set of rules
@@ -44,6 +50,7 @@ class RequiredRule extends ValidationRule {
 class StringRule extends ValidationRule {
   @override
   String? validate(Map<String, dynamic> data, String field) {
+    if ((data[field] == null)) return null;
     if (data[field] is! String) {
       return '$field must be a string.';
     }
@@ -51,9 +58,27 @@ class StringRule extends ValidationRule {
   }
 }
 
+class DateRule extends ValidationRule {
+  final String pattern;
+  DateRule({this.pattern = 'yyyy-MM-dd'});
+  @override
+  String? validate(Map<String, dynamic> data, String field) {
+    var value = data[field];
+    if (value == null) return null;
+    if (value is String) {
+      try {
+        DateFormat(pattern).parseStrict(value);
+        return null;
+      } catch (_) {}
+    }
+    return '$field must be a date of $pattern.';
+  }
+}
+
 class DoubleRule extends ValidationRule {
   @override
   String? validate(Map<String, dynamic> data, String field) {
+    if ((data[field] == null)) return null;
     if (double.tryParse(data[field]) == null) {
       return '$field must be an double.';
     }
@@ -64,7 +89,8 @@ class DoubleRule extends ValidationRule {
 class IntegerRule extends ValidationRule {
   @override
   String? validate(Map<String, dynamic> data, String field) {
-    if (data[field] is! int) {
+    if ((data[field] == null)) return null;
+    if (int.tryParse(data[field] ?? '') == null) {
       return '$field must be an integer.';
     }
     return null;
@@ -74,6 +100,7 @@ class IntegerRule extends ValidationRule {
 class EmailRule extends ValidationRule {
   @override
   String? validate(Map<String, dynamic> data, String field) {
+    if ((data[field] == null)) return null;
     if (data[field] is! String ||
         !RegExp(r"^[^@]+@[^@]+\.[^@]+$").hasMatch(data[field])) {
       return '$field must be a valid email address.';
@@ -102,6 +129,7 @@ class MinValueRule extends ValidationRule {
 
   @override
   String? validate(Map<String, dynamic> data, String field) {
+    if ((data[field] == null)) return null;
     if ((data[field] is double || data[field] is int) &&
         data[field] < minValue) {
       return '$field must be greater than or equal to $minValue.';
@@ -117,6 +145,7 @@ class MaxValueRule extends ValidationRule {
 
   @override
   String? validate(Map<String, dynamic> data, String field) {
+    if ((data[field] == null)) return null;
     // Check if the field exists and is an integer
     if (data[field] is double || data[field] is int) {
       if (data[field] > maxValue) {
@@ -137,21 +166,17 @@ class FileRule extends ValidationRule {
   @override
   String? validate(Map<String, dynamic> data, String field) {
     var file = data[field];
-
-    // If file is missing or null
-    if (file == null) {
-      return '$field is required or must be a file content.';
-    }
-
+    if ((data[field] == null)) return null;
     if (file is HttpFile) {
       // Validate mime type
       if (allowedMimeTypes.isNotEmpty &&
-          !allowedMimeTypes.contains(file.extension)) {
+          !allowedMimeTypes.contains(file.extension.toLowerCase())) {
         return '$field must be one of the following file types: ${allowedMimeTypes.join(", ")}.';
       }
+    } else {
+      return '$field must be file';
     }
-
-    return null; // No validation errors
+    return null;
   }
 }
 

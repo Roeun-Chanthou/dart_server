@@ -1,7 +1,8 @@
 import 'package:intl/intl.dart';
+import 'package:shelf/shelf.dart';
 
 class UserResource {
-  static Map<String, dynamic> map(dynamic data) {
+  static Map<String, dynamic> map(dynamic data, Request request) {
     var dob = data['dob'];
     var dobFormat = '';
     if (dob is DateTime) {
@@ -14,10 +15,12 @@ class UserResource {
       'username': data['username'],
       'image': data['image'],
       'dob': dobFormat,
+      'password': data['password']
     };
   }
 
-  static List<Map<String, dynamic>> fromCollection(List<dynamic> data) {
-    return data.map((e) => map(e)).toList();
+  static List<Map<String, dynamic>> fromCollection(
+      List<dynamic> data, Request request) {
+    return data.map((e) => map(e, request)).toList();
   }
 }

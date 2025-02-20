@@ -2,9 +2,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
-import 'package:path/path.dart' as p;
 
 import 'validator.dart';
 
@@ -45,7 +45,9 @@ var image = httpParams.getFile('image');
 class HttpParams {
   var jsonData = <String, dynamic>{};
   var fileData = <String, HttpFile>{};
+////
 
+  ///
   Future<void> loadRequest(Request request) async {
     var form = request.formData();
 
@@ -62,6 +64,22 @@ class HttpParams {
       var body = await request.readAsString();
       jsonData = jsonDecode(body.isEmpty ? '{}' : body);
     }
+  }
+
+  dynamic get(String key) {
+    return jsonData[key];
+  }
+
+  List<dynamic> getList(String key) {
+    var data = jsonData[key];
+    if (data is List) {
+      return data;
+    }
+    return jsonDecode(data);
+  }
+
+  bool has(String key) {
+    return jsonData.containsKey(key) || fileData.containsKey(key);
   }
 
   int getInt(String key, {int defaultValue = 0}) {
@@ -107,6 +125,7 @@ class HttpParams {
       (key, value) {
         var result = value.where((element) {
           if (element case RequiredRule rule) return rule.isFile;
+          if (element is FileRule) return true;
           return false;
         }).toList();
         return result.isNotEmpty;
@@ -118,19 +137,26 @@ class HttpParams {
     fileRule.removeWhere(
       (key, value) {
         var result = value.where((element) {
-          if (element case RequiredRule rule) return !rule.isFile;
-          return false;
+          if (element is FileRule) return false;
+          if (element case RequiredRule rule) return rule.isFile;
+          return true;
         }).toList();
         return result.isNotEmpty;
       },
     );
 
+    var jsonDataClone = Map<String, dynamic>.from(jsonData);
     //Validate json data
-    var errorData = JsonValidator.validate(jsonData, dataRule);
+    var errorData = JsonValidator.validate(jsonDataClone, dataRule);
 
     //Validate json file
     if (fileRule.isNotEmpty) {
-      var errorFile = JsonValidator.validate(fileData, fileRule);
+      //Filter file data
+      var fileRuleKeys = fileRule.keys;
+      jsonDataClone.removeWhere((key, value) => !fileRuleKeys.contains(key));
+      //Response validation
+      var errorFile =
+          JsonValidator.validate({...fileData, ...jsonDataClone}, fileRule);
       return {...errorData, ...errorFile};
     }
 
