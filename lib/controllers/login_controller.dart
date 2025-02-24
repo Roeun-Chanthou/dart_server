@@ -1,1 +1,3 @@
-class LoginController {}
+class LoginController {
+  
+}

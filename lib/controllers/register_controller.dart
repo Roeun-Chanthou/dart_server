@@ -1,1 +1,3 @@
-class RegisterController {}
+class RegisterController {
+  
+}
