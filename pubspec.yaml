@@ -16,6 +16,7 @@ dependencies:
   path: ^1.9.1
   mime: ^1.0.6
   mysql_utils: ^2.1.5
+  shelf_web_socket: ^3.0.0
 
 dev_dependencies:
   http: ^1.1.0

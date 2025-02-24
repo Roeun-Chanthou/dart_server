@@ -24,3 +24,4 @@ class UserResource {
     return data.map((e) => map(e, request)).toList();
   }
 }
+
